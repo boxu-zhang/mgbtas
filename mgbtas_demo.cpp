@@ -102,12 +102,14 @@ void * simulate_produce_data_thread( void * ctx )
 
    while ( !thread_stop_flag )
    {
-      int tag = rand() % MGBTAS_MAXIMUM_TRACKS;
+      int rval = rand();
+      int tag = rval % MGBTAS_MAXIMUM_TRACKS;
 
       mgbtas_bullet_t bullet;
       memset( &bullet, 0, sizeof( bullet ) );
 
       bullet_recieved( &bullet );
+      ::bullet_payload( &bullet, abs( rval ) );
 
       ::usleep( tag_sleep_array[tag].recived_sleep );
 
@@ -178,10 +180,10 @@ int main( int, char ** )
          mgbtas_game_detail_track( stdout, &game, LIST );
       } else if ( !strcmp( "help\n", line ) ) {
          printf( "usage: [dump|detail] [append|remove|alter|query|list]\n" );
-         printf( "\texample: dump append # show statistic information about 'append' operation\n" );
-         printf( "\t\tdetail alter #show statistic information about 'alter' operation\n" );
+         printf( "\texample:\tdump append \t# show statistic information about 'append' operation\n" );
+         printf( "\t\t\tdetail alter \t#show statistic information about 'alter' operation\n" );
       } else {
-         printf( "error! invalid command, type help for usage" );
+         printf( "error! invalid command, type help for usage.\n" );
       }
    }
 

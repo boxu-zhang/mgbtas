@@ -124,7 +124,7 @@ extern "C" {
 
    // round
    mgbtas_round_t * mgbtas_round_alloc_and_init( mgbtas_round_t * prev_rnd );
-   universal_time_t mgbtas_round_start_time( mgbtas_round_t * rnd );
+   universal_time_t mgbtas_round_begin_time( mgbtas_round_t * rnd );
    universal_time_t mgbtas_round_end_time( mgbtas_round_t * rnd );
    void mgbtas_round_free( mgbtas_round_t * rnd );
 

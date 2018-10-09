@@ -123,6 +123,8 @@ inline uint64_t bullet_calculate( mgbtas_bullet_t * bullet, int which_one )
          return universal_time_sub( &bullet->finished_time, &bullet->start_time );
       case LATENCY:
          return universal_time_sub( &bullet->start_time, &bullet->recieved_time );
+      case PAYLOAD:
+         return bullet->payload_length;
       case FULLTIME:
          return universal_time_sub( &bullet->finished_time, &bullet->recieved_time );
    }
@@ -200,19 +202,19 @@ universal_time_t mgbtas_round_end_time( mgbtas_round_t * rnd )
    return universal_time_add( &rnd->begin_rnd_time, rnd->total_rnd_duration );
 }
 
-uint64_t mgbtas_round_average_trajectory( mgbtas_round_t * rnd, int traj )
+uint64_t mgbtas_round_average( mgbtas_round_t * rnd, int traj )
 {
    return rnd->total_input_times ? (rnd->trajectorys[traj].total / rnd->total_input_times) : 0;
 }
 
 uint64_t mgbtas_round_throughput( mgbtas_round_t * rnd )
 {
-   return rnd->total_rnd_duration ? rnd->total_input_times / rnd->total_rnd_duration : 0;
+   return rnd->total_rnd_duration ? rnd->total_input_times * 1000 / rnd->total_rnd_duration : 0;
 }
 
 uint64_t mgbtas_round_bandwidth( mgbtas_round_t * rnd )
 {
-   return rnd->total_rnd_duration ? rnd->trajectorys[PAYLOAD].total / rnd->total_rnd_duration : 0;
+   return rnd->total_rnd_duration ? rnd->trajectorys[PAYLOAD].total * 1000 / ( 1024 * rnd->total_rnd_duration ) : 0;
 }
 
 // track
@@ -393,8 +395,8 @@ void mgbtas_trajectorys_dump( FILE * fp, mgbtas_round_t * rnd )
 {
    // total request count
    fprintf( fp, "\t\t\ttotal_input_times: %ld\n", rnd->total_input_times );
-   fprintf( fp, "\t\t\tthroughput: %ld(t/s)\n", mgbtas_round_throughput( rnd ) );
-   fprintf( fp, "\t\t\tbandwidth: %ld(kb/s)\n", mgbtas_round_bandwidth( rnd ) );
+   fprintf( fp, "\t\t\tthroughput: %ld, // t/s\n", mgbtas_round_throughput( rnd ) );
+   fprintf( fp, "\t\t\tbandwidth: %ld, // kb/s\n", mgbtas_round_bandwidth( rnd ) );
 
    for ( int traj = DEFAULT_TRAJECTORY; traj < (int)_countof( rnd->trajectorys ); traj++ )
    {
@@ -429,14 +431,14 @@ void mgbtas_round_dump( FILE * fp, mgbtas_round_t * rnd )
       return;
 
    fprintf( fp, "{\n" );
-   fprintf( fp, "\tbegin_time: '%s',\n", universal_time_str( mgbtas_round_start_time( rnd ) ) );
+   fprintf( fp, "\tbegin_time: '%s',\n", universal_time_str( mgbtas_round_begin_time( rnd ) ) );
    fprintf( fp, "\tend_time: '%s',\n", universal_time_str( mgbtas_round_end_time( rnd ) ) );
-   fprintf( fp, "\ttrajectorys: [\n" );
+   fprintf( fp, "\ttrajectorys: {\n" );
 
    // dump barrel
    mgbtas_trajectorys_dump( fp, rnd );
 
-   fprintf( fp, "\t],\n" );
+   fprintf( fp, "\t},\n" );
    fprintf( fp, "},\n" );
 }
 
@@ -467,7 +469,7 @@ void mgbtas_track_dump( FILE * fp, mgbtas_track_t * track )
    }
 }
 
-void mgbtas_track_state( FILE * fp, mgbtas_track_t * track )
+void mgbtas_track_dump_detail( FILE * fp, mgbtas_track_t * track )
 {
    if ( !track || !fp )
       return;
