@@ -1,6 +1,10 @@
 #ifndef XFLOW_METER_H
 #define XFLOW_METER_H
 
+#ifndef DEBUG 
+#define DEBUG 0
+#endif
+
 // for universial time
 #include <stdio.h>
 #include <sys/time.h>
@@ -13,13 +17,14 @@ typedef struct timeval universal_time_t;
 extern "C" {
 #endif
 
+   // unit of universal_time_t is microsecond(us) which is 1 million percent of 1 second.
    const char * universal_time_str( universal_time_t time_val );
    const char * universal_time_str_detail( universal_time_t time_val );
    universal_time_t universal_time_now();
    uint64_t universal_time_normalize( uint64_t time_in_microseconds );
    uint64_t universal_time_normalize_to_us( uint64_t time_in_normalized );
    uint64_t universal_time_sub( universal_time_t * end, universal_time_t * begin );
-   universal_time_t universal_time_add( universal_time_t * begin, uint64_t dur_in_ms );
+   universal_time_t universal_time_add( universal_time_t * begin, uint64_t dur_in_us );
 
 #if defined( __cplusplus )
 }
@@ -50,7 +55,17 @@ extern "C" {
 
 #define MAX_TRAJECTORY                 (FULLTIME + 1)
 
-// all time unit is in millisecond
+#define UNIT_KILOBYTES                 1024
+#define UNIT_TIMES                     1
+#define UNIT_MICROSECOND               (1000 * 1000)
+
+// value of fraction is numerator / denominator
+typedef struct _mgbtas_fraction_t
+{
+   uint64_t                            numerator;
+   uint64_t                            denominator;
+} mgbtas_fraction_t;
+
 typedef struct _mgbtas_bullet_t
 {
    int                                 payload_length;
@@ -97,6 +112,14 @@ typedef struct _mgbtas_track_t
    mgbtas_round_t *                    last_rnd;
 } mgbtas_track_t;
 
+// mgbtas_counter_t is a simple tickcounter for calculating throughput and bandwidth
+typedef struct _mgbtas_counter_t
+{
+   uint64_t tickcount;
+   uint64_t totalvalue;
+   universal_time_t begin_time;
+} mgbtas_counter_t;
+
 #if defined( __cplusplus )
 extern "C" {
 #endif
@@ -129,19 +152,19 @@ extern "C" {
    void mgbtas_round_free( mgbtas_round_t * rnd );
 
    bool mgbtas_round_append( mgbtas_round_t * rnd, mgbtas_bullet_t * bullet );
-   uint64_t mgbtas_round_average( mgbtas_round_t * rnd, int traj );
-   uint64_t mgbtas_round_throughput( mgbtas_round_t * rnd );
-   uint64_t mgbtas_round_bandwidth( mgbtas_round_t * rnd );
+   mgbtas_fraction_t mgbtas_round_average( mgbtas_round_t * rnd, int traj );
+   mgbtas_fraction_t mgbtas_round_throughput( mgbtas_round_t * rnd );
+   mgbtas_fraction_t mgbtas_round_bandwidth( mgbtas_round_t * rnd );
 
    // track
-   mgbtas_track_t * mgbtas_track_alloc_and_init( int round_time = 0, int max_rounds = 0 );
+   mgbtas_track_t * mgbtas_track_alloc_and_init();
    universal_time_t mgbtas_track_begin_time( mgbtas_track_t * track );
    universal_time_t mgbtas_track_end_time( mgbtas_track_t * track );
    void mgbtas_track_free( mgbtas_track_t * track );
 
    void mgbtas_track_append( mgbtas_track_t * chain, mgbtas_bullet_t * bullet );
-   uint64_t mgbtas_track_average_throughput( mgbtas_track_t * chain );
-   uint64_t mgbtas_track_average_bandwidth( mgbtas_track_t * chain );
+   mgbtas_fraction_t mgbtas_track_average_throughput( mgbtas_track_t * chain );
+   mgbtas_fraction_t mgbtas_track_average_bandwidth( mgbtas_track_t * chain );
    uint64_t mgbtas_track_information(
          mgbtas_track_t * track, int traj,
          mgbtas_round_t ** maximum, mgbtas_round_t ** minimum );
@@ -150,6 +173,28 @@ extern "C" {
    void mgbtas_round_dump( FILE * fp, mgbtas_round_t * rnd );
    void mgbtas_track_dump_detail( FILE * fp, mgbtas_track_t * track );
    void mgbtas_track_dump( FILE * fp, mgbtas_track_t * track );
+
+   // counter
+   void mgbtas_counter_init( mgbtas_counter_t * counter );
+   void mgbtas_counter_clean( mgbtas_counter_t * counter );
+   void mgbtas_counter_tick( mgbtas_counter_t * counter, int payload_length = 0 );
+   mgbtas_fraction_t mgbtas_counter_throughput( mgbtas_counter_t * counter );
+   mgbtas_fraction_t mgbtas_counter_bandwidth( mgbtas_counter_t * counter );
+
+   // mgbtas_fraction_t
+   uint64_t mgbtas_fraction_calculate( mgbtas_fraction_t v );
+   mgbtas_fraction_t mgbtas_fraction_multiply( mgbtas_fraction_t v, mgbtas_fraction_t mulitplier );
+   mgbtas_fraction_t mgbtas_fraction_divide( mgbtas_fraction_t v, mgbtas_fraction_t divisor );
+
+   // value to string
+   const char * universal_time_str( universal_time_t time_val );
+   const char * universal_time_str_detail( universal_time_t time_val );
+   const char * payload_length_str( uint64_t payload_length );
+   const char * average_payload_length_str( uint64_t payload_length );
+   const char * duration_str( uint64_t dur );
+   const char * average_duration_str( mgbtas_fraction_t dur );
+   const char * throughput_str( mgbtas_fraction_t throughput );
+   const char * bandwidth_str( mgbtas_fraction_t bandwidth );
 
 #if defined( __cplusplus )
 }
