@@ -32,7 +32,7 @@ int test_mgbtas_bandwidth_str( int argc, char * argv[] )
    {
       // calculate the case
       uint64_t val = bandwidth_cases[i].numerator * 1000 * 1000 / bandwidth_cases[i].denominator;
-      const char * result = ::bandwidth_str( bandwidth_cases[i] );
+      const char * result = ::mgbtas_bandwidth_str( bandwidth_cases[i] );
       bool flag = false;
 
       if ( val > 1024 * 1024 && ::strstr( result, "mb/s" ) != NULL )

@@ -2,7 +2,10 @@ PROJECT(mgbtas)
 
 SET( CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-g -std=c++11 -lpthread" )
 
-SET( ${PROJECT_NAME}_SRC mgbtas.cpp )
+SET( ${PROJECT_NAME}_SRC
+   mgbtas_time.cpp
+   mgbtas_core.cpp
+   mgbtas_ui.cpp )
 
 ADD_LIBRARY( ${PROJECT_NAME} ${${PROJECT_NAME}_SRC} )
 

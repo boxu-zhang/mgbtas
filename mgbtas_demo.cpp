@@ -118,16 +118,16 @@ void * simulate_produce_data_thread( void * ctx )
       mgbtas_bullet_t bullet;
       memset( &bullet, 0, sizeof( bullet ) );
 
-      bullet_recieved( &bullet );
-      bullet_payload( &bullet, abs( rval ) );
+      mgbtas_bullet_recieved( &bullet );
+      mgbtas_bullet_payload( &bullet, abs( rval ) );
 
       ::usleep( tag_sleep_array[tag].recived_sleep );
 
-      bullet_start( &bullet );
+      mgbtas_bullet_start( &bullet );
 
       ::usleep( tag_sleep_array[tag].start_sleep );
 
-      bullet_finish( &bullet );
+      mgbtas_bullet_finish( &bullet );
 
       mgbtas_game_append( game, tag, &bullet );
    }
@@ -191,8 +191,8 @@ int main( int, char ** )
       } else if ( !strcmp( "detail list\n", line ) ) {
          mgbtas_game_detail_track( stdout, &demo.game, LIST );
       } else if ( !strcmp( "counter\n", line ) ) {
-         printf( "{\n\tthroughput: '%s',\n", throughput_str( mgbtas_counter_throughput( &demo.counter ) ) );
-         printf( "\tbandwidth: '%s'\n},\n", bandwidth_str( mgbtas_counter_bandwidth( &demo.counter ) ) );
+         printf( "{\n\tthroughput: '%s',\n", mgbtas_throughput_str( mgbtas_counter_throughput( &demo.counter ) ) );
+         printf( "\tbandwidth: '%s'\n},\n", mgbtas_bandwidth_str( mgbtas_counter_bandwidth( &demo.counter ) ) );
       } else if ( !strcmp( "help\n", line ) ) {
          printf( "usage: [dump|detail|counter] [append|remove|alter|query|list]\n" );
          printf( "\texample:\tdump append \t# show statistic information about 'append' operation\n" );
@@ -201,6 +201,8 @@ int main( int, char ** )
       } else {
          printf( "error! invalid command, type help for usage.\n" );
       }
+
+      fflush( stdout );
    }
 
    return 0;
