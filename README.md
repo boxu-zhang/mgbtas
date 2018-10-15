@@ -52,5 +52,5 @@ A game demonstrates a simplest way to manage tracks in host application and exhi
 ## Appendix
 Information that developer might need to know.
 
-### Unit
+### 1. Unit
 'mgbtas' has predefined the internal data unit. For example, unit of 'payload_length' is 'kb = 1024 bytes', unit of time is microsecond 'us' and unit of 'bullet' is 'times'. However, these unit are not appropriate for display. So, it provide some interface for a nicer display string of both inputing parameters and outputing results. See API for detail.

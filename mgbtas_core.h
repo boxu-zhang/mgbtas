@@ -5,7 +5,6 @@
 #define DEBUG 0
 #endif
 
-#include <stdio.h>
 #include "mgbtas_time.h"
 
 // for mgbtas
@@ -13,12 +12,12 @@
 #define _countof( ary ) (sizeof((ary)) / sizeof((ary)[0]))
 #endif 
 
-// Default rnd duration is 1 hour, ie. 3600s, you can use short value for test, like 30
-// Default rnd count is 24 which means that the analyzer only keeps data in one day.
+// Default round duration is 60 seconds, you can use short value for test, like 1.
 #if !defined( MGBTAS_DEFAULT_ROUND )
 #define MGBTAS_DEFAULT_ROUND           (60)
 #endif
 
+// Default round count is 60 which means that each track can keeps data in 1 hour (60 * 60 = 3600s) only.
 #if !defined( MGBTAS_MAXIMUM_ROUNDS )
 #define MGBTAS_MAXIMUM_ROUNDS          (60)
 #endif 
@@ -47,9 +46,9 @@ typedef struct _mgbtas_fraction_t
 typedef struct _mgbtas_bullet_t
 {
    int                                 payload_length;
-   mgbtas_time_t                    recieved_time;
-   mgbtas_time_t                    start_time;
-   mgbtas_time_t                    finished_time;
+   mgbtas_time_t                       recieved_time;
+   mgbtas_time_t                       start_time;
+   mgbtas_time_t                       finished_time;
 } mgbtas_bullet_t;
 
 typedef struct _mgbtas_trajectory_t
@@ -66,7 +65,7 @@ typedef struct _mgbtas_round_t
    struct _mgbtas_round_t *            next_rnd;
 
    // when does this rnd beign
-   mgbtas_time_t                    begin_rnd_time;
+   mgbtas_time_t                       begin_rnd_time;
 
    // how much time this rnd calcualte
    uint64_t                            total_rnd_duration;
