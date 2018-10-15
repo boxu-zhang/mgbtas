@@ -4,11 +4,11 @@ Imagine 'a specific type' of the coming requests are fired from a machine gun. W
 
 ## What is bullet
 A bullet is a network request/response pair. It has several attribtues: 'recieved time', 'started time', 'finished time', 'payload length' and 'status'(describe whether the request/response is succeeded). These attributes might not be meaningful enough for this system, and we need to convert it to more meaningful form. Using following fomulas to calculate.
-'''
+```
 latency     = 'started time' - 'recieved time'  # unit is microseconds(us)
 execution   = 'finished time' - 'started time'  # unit is microseconds(us)
 payload     = 'payload length' / 1024           # convert unit to kilobytes
-'''
+```
 
 While some other aspect the system cares might not avaible for single bullet. We'll talk them later.
 
@@ -16,7 +16,7 @@ While some other aspect the system cares might not avaible for single bullet. We
 A trajectory is a curve describes the varies of a sequence of 'bullet's. However, a bullet has more than one attribute that the system cares, and a trajectory can only describe only one of them.
 
 Besides, trajectory provides additional attribtues the system wants, listed below.
-'''
+```
 total_inputs = count(bullet) # unit is times
 total_time = (first(bullet)->'recieved time' - last(bullet)->'finished time') / (1000 * 1000) # unit is second(s)
 
@@ -38,7 +38,7 @@ average_payload = average(payload)
 throughput = total_inputs / total_time # unit is 'times per second'(t/s)
 
 bandwidth = total_payload / total_time # unit is 'kilobytes per second'(kb/s)
-'''
+```
 
 ## What is round
 A round is a period of time that the system counts 'bullet's and calculates 'trajectory's. It's a fixed time and can be adjust through predefined processor - 'MGBTAS_DEFAULT_ROUND' in unit of seconds(s). Default is 60s.
