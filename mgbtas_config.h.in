@@ -1,0 +1,8 @@
+#ifndef MGBTAS_CONFIG_H
+#define MGBTAS_CONFIG_H
+
+// the configured options and settings for Tutorial
+#define MGBTAS_VERSION_MAJOR @MGBTAS_VERSION_MAJOR@
+#define MGBTAS_VERSION_MINOR @MGBTAS_VERSION_MINOR@
+
+#endif // MGBTAS_CONFIG_H
