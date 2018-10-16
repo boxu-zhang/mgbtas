@@ -17,13 +17,13 @@ configure_file (
 # so that we will find TutorialConfig.h
 include_directories("${PROJECT_BINARY_DIR}")
 
-SET(CMAKE_INSTALL_PREFIX "/usr/local/mgbtas")
+SET(CMAKE_INSTALL_PREFIX "/usr/local")
 
-SET(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE PATH "Installation directory for libraries")
-SET(INSTALL_INC_DIR "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "Installation directory for headers")
-SET(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Installation directory for binaries")
-SET(INSTALL_MAN_DIR "${CMAKE_INSTALL_PREFIX}/share/man" CACHE PATH "Installation directory for manual pages")
-SET(INSTALL_PKGCONFIG_DIR "/usr/local/share/pkgconfig" CACHE PATH "Installation directory for pkgconfig (.pc) files")
+SET(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib/mgbtas" CACHE PATH "Installation directory for libraries")
+SET(INSTALL_INC_DIR "${CMAKE_INSTALL_PREFIX}/include/mgbtas" CACHE PATH "Installation directory for headers")
+SET(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin/mgbtas" CACHE PATH "Installation directory for binaries")
+SET(INSTALL_MAN_DIR "${CMAKE_INSTALL_PREFIX}/share/man/mgbtas" CACHE PATH "Installation directory for manual pages")
+SET(INSTALL_PKGCONFIG_DIR "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" CACHE PATH "Installation directory for pkgconfig (.pc) files")
 
 CONFIGURE_FILE(
    ${PROJECT_SOURCE_DIR}/mgbtas.pc.cmakein
