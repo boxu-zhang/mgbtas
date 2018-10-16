@@ -119,7 +119,7 @@ extern "C" {
 
    inline void mgbtas_bullet_payload( mgbtas_bullet_t * bullet, int payload_length )
    {
-      bullet->payload_length = payload_length;
+      bullet->payload_length += payload_length;
    }
 
    // round
