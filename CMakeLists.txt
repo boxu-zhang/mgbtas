@@ -30,7 +30,7 @@ CONFIGURE_FILE(
    ${PROJECT_BINARY_DIR}/mgbtas.pc @ONLY
    )
 
-SET( CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-g -std=c++11 -lpthread" )
+SET( CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-g -fPIC -std=c++11 -lpthread" )
 
 SET( ${PROJECT_NAME}_HDRS
    ${PROJECT_BINARY_DIR}/mgbtas_config.h
