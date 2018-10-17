@@ -5,7 +5,7 @@
 #include <sys/time.h>
 #include <time.h>
 
-typedef long int uint64_t;
+typedef long unsigned int uint64_t;
 typedef struct timeval mgbtas_time_t;
 
 #if defined( __cplusplus )
