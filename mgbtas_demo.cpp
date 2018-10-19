@@ -135,7 +135,9 @@ void * simulate_produce_data_thread( void * ctx )
    return NULL;
 }
 
-int main( int, char ** )
+static int pipe_fds[2];
+
+void * mgbtas_demo_main( void * ctx )
 {
    mgbtas_demo_t demo;
    pthread_t producer;
@@ -144,7 +146,7 @@ int main( int, char ** )
    if ( !mgbtas_game_init( &demo.game ) )
    {
       printf( "can't init game\n" );
-      return -1;
+      return NULL;
    }
 
    mgbtas_counter_init( &demo.counter );
@@ -154,56 +156,97 @@ int main( int, char ** )
    if ( err != 0 ) 
    {
       printf( "can't create thread: [%s]\n", strerror(err) );
-      return -1;
+      return NULL;
    }
+
+   fd_set descriptor_set;
+   FD_ZERO(&descriptor_set); 
+   FD_SET(STDIN_FILENO, &descriptor_set); 
+   FD_SET(pipe_fds[0], &descriptor_set);
 
    for ( ;; )
    {
-      char * line = NULL;
-      size_t size = 0;
+      if ( select( FD_SETSIZE, &descriptor_set, NULL, NULL, NULL) < 0 )
+      {
+         // select() error
+      }
 
-      ::getline( &line, &size, stdin );
-
-      if ( feof( stdin ) ) {
-         thread_stop_flag = true;
-         ::pthread_join( producer, NULL );
+      if ( FD_ISSET( pipe_fds[0], &descriptor_set ) )
+      {
+         // Special event. break
+         printf( "quit signal recieved\n" );
          break;
       }
 
-      if ( !strcmp( "dump append\n", line ) ) {
-         mgbtas_game_dump_track( stdout, &demo.game, APPEND );
-      } else if ( !strcmp( "dump remove\n", line ) ) {
-         mgbtas_game_dump_track( stdout, &demo.game, REMOVE );
-      } else if ( !strcmp( "dump alter\n", line ) ) {
-         mgbtas_game_dump_track( stdout, &demo.game, ALTER );
-      } else if ( !strcmp( "dump query\n", line ) ) {
-         mgbtas_game_dump_track( stdout, &demo.game, QUERY );
-      } else if ( !strcmp( "dump list\n", line ) ) {
-         mgbtas_game_dump_track( stdout, &demo.game, LIST );
-      } else if ( !strcmp( "detail append\n", line ) ) {
-         mgbtas_game_detail_track( stdout, &demo.game, APPEND );
-      } else if ( !strcmp( "detail remove\n", line ) ) {
-         mgbtas_game_detail_track( stdout, &demo.game, REMOVE );
-      } else if ( !strcmp( "detail alter\n", line ) ) {
-         mgbtas_game_detail_track( stdout, &demo.game, ALTER );
-      } else if ( !strcmp( "detail query\n", line ) ) {
-         mgbtas_game_detail_track( stdout, &demo.game, QUERY );
-      } else if ( !strcmp( "detail list\n", line ) ) {
-         mgbtas_game_detail_track( stdout, &demo.game, LIST );
-      } else if ( !strcmp( "counter\n", line ) ) {
-         printf( "{\n\tthroughput: '%s',\n", mgbtas_throughput_str( mgbtas_counter_throughput( &demo.counter ) ) );
-         printf( "\tbandwidth: '%s'\n},\n", mgbtas_bandwidth_str( mgbtas_counter_bandwidth( &demo.counter ) ) );
-      } else if ( !strcmp( "help\n", line ) ) {
-         printf( "usage: [dump|detail|counter] [append|remove|alter|query|list]\n" );
-         printf( "\texample:\tdump append \t# show statistic information about 'append' operation\n" );
-         printf( "\t\t\tdetail alter \t# show statistic information about 'alter' operation\n" );
-         printf( "\t\t\tcounter \t# show demo counter info\n" );
-      } else {
-         printf( "error! invalid command, type help for usage.\n" );
-      }
+      if ( FD_ISSET( STDIN_FILENO, &descriptor_set ) )
+      {
+         char * line = NULL;
+         size_t size = 0;
 
-      fflush( stdout );
+         ::getline( &line, &size, stdin );
+
+         if ( feof( stdin ) || !strcmp( "quit\n", line ) ) {
+            printf( "quit recieved\n" );
+            thread_stop_flag = true;
+            ::pthread_join( producer, NULL );
+            break;
+         }
+
+         if ( !strcmp( "dump append\n", line ) ) {
+            mgbtas_game_dump_track( stdout, &demo.game, APPEND );
+         } else if ( !strcmp( "dump remove\n", line ) ) {
+            mgbtas_game_dump_track( stdout, &demo.game, REMOVE );
+         } else if ( !strcmp( "dump alter\n", line ) ) {
+            mgbtas_game_dump_track( stdout, &demo.game, ALTER );
+         } else if ( !strcmp( "dump query\n", line ) ) {
+            mgbtas_game_dump_track( stdout, &demo.game, QUERY );
+         } else if ( !strcmp( "dump list\n", line ) ) {
+            mgbtas_game_dump_track( stdout, &demo.game, LIST );
+         } else if ( !strcmp( "detail append\n", line ) ) {
+            mgbtas_game_detail_track( stdout, &demo.game, APPEND );
+         } else if ( !strcmp( "detail remove\n", line ) ) {
+            mgbtas_game_detail_track( stdout, &demo.game, REMOVE );
+         } else if ( !strcmp( "detail alter\n", line ) ) {
+            mgbtas_game_detail_track( stdout, &demo.game, ALTER );
+         } else if ( !strcmp( "detail query\n", line ) ) {
+            mgbtas_game_detail_track( stdout, &demo.game, QUERY );
+         } else if ( !strcmp( "detail list\n", line ) ) {
+            mgbtas_game_detail_track( stdout, &demo.game, LIST );
+         } else if ( !strcmp( "counter\n", line ) ) {
+            printf( "{\n\tthroughput: '%s',\n", mgbtas_throughput_str( mgbtas_counter_throughput( &demo.counter ) ) );
+            printf( "\tbandwidth: '%s'\n},\n", mgbtas_bandwidth_str( mgbtas_counter_bandwidth( &demo.counter ) ) );
+         } else if ( !strcmp( "help\n", line ) ) {
+            printf( "usage: [dump|detail|counter] [append|remove|alter|query|list]\n" );
+            printf( "\texample:\tdump append \t# show statistic information about 'append' operation\n" );
+            printf( "\t\t\tdetail alter \t# show statistic information about 'alter' operation\n" );
+            printf( "\t\t\tcounter \t# show demo counter info\n" );
+         } else {
+            printf( "error! invalid command, type help for usage.\n" );
+         }
+
+         fflush( stdout );
+      }
    }
 
+   return NULL;
+}
+
+int main( int argc, char * argv[] )
+{
+   pipe(pipe_fds);
+   pthread_t command_loop;
+   ::pthread_create( &command_loop, NULL, &mgbtas_demo_main, NULL );
+
+   for ( int i = 5; i >= 0; i-- )
+   {
+      printf( "quit after %d seconds\n", i );
+      ::sleep( 1 );
+   }
+   
+   printf( "quit\n" );
+   close(pipe_fds[1]);
+
+   ::pthread_join( command_loop, NULL );
+   printf( "mgbtad_demo command loop exit!" );
    return 0;
 }

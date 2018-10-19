@@ -219,9 +219,15 @@ void mgbtas_track_dump( FILE * fp, mgbtas_track_t * track )
    if ( !track || !fp )
       return;
 
+   if ( track->last_rnd == NULL )
+   {
+      fprintf( fp, "no round is available, it means 'mgbtas' hasn't recieved any payload\n" );
+      return;
+   }
+
    if ( track->last_rnd->prev_rnd == NULL )
    {
-      printf( "only one rnd is working on saving data, please try dump after %d s\n", MGBTAS_DEFAULT_ROUND );
+      fprintf( fp, "only one rnd is working on saving data, please try dump after %d s\n", MGBTAS_DEFAULT_ROUND );
       return;
    }
 
@@ -247,6 +253,12 @@ void mgbtas_track_dump_detail( FILE * fp, mgbtas_track_t * track )
 {
    if ( !track || !fp )
       return;
+
+   if ( track->last_rnd == NULL )
+   {
+      fprintf( fp, "no round is available, it means 'mgbtas' hasn't recieved any payload\n" );
+      return;
+   }
 
    if ( track->last_rnd->prev_rnd == NULL )
    {
